@@ -13,7 +13,7 @@ import comtypes.client
 from streamlit_modal import Modal
 
 #** debug 
-# import time
+import time
 # import tempfile
 
 #openai.api_key = os.getenv('OPENAI_API_KEY')  # Replace with your actual API key
@@ -232,9 +232,15 @@ def main():
             ">Download Presentation</a>
         """, unsafe_allow_html=True)
         if Exit:
-            os.remove(st.session_state.generatedpath)  #clear cache file
-            st.stop()
+            if st.session_state.generatedpath is not None:
+                os.remove(st.session_state.generatedpath)  #clear cache file
+                st.session_state.generatedpath = None
             # shut down the app
+            with my_modal.container():
+                with st.spinner("Application terminates.Please close the browser tab."):
+                    time.sleep(20)
+                    st.stop()
+                    pass
 
         # Add checkboxes for user to select options
         show_input_file = st.checkbox("Display Input File", value=True)
