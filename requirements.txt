@@ -5,6 +5,5 @@ python-pptx
 pandas
 docx2txt
 python-pptx
-pdfkit
 comtypes
 streamlit_modal
