@@ -4,17 +4,21 @@ import pptx
 from pptx.util import Inches, Pt
 import os
 import toml,json, requests
+import comtypes.client
 
 import pandas as pd
 import docx2txt
-import comtypes.client
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from pptx import Presentation
 
 # popup modal
 from streamlit_modal import Modal
 
 #** debug 
 import time
-# import tempfile
+import tempfile
 
 #openai.api_key = os.getenv('OPENAI_API_KEY')  # Replace with your actual API key
 file_path = './credential.txt'
@@ -109,7 +113,26 @@ def get_ppt_download_url(path):
     b64_ppt = base64.b64encode(ppt_contents).decode()
     return f'data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,{b64_ppt}'
 
-# Convert PowerPoint file to PDF, need know the path 
+# def ppt_to_pdf(ppt_path, pdf_path):
+#     prs = Presentation(ppt_path)
+#     c = canvas.Canvas(pdf_path, pagesize=letter)
+
+#     for slide in prs.slides:
+#         # 在 PDF 中创建新页面
+#         c.showPage()
+
+#         # 将每个幻灯片的标题和内容写入 PDF
+#         title = slide.shapes.title.text if slide.shapes.title else ""
+#         c.drawString(100, 750, title)
+
+#         for shape in slide.shapes:
+#             if hasattr(shape, "text"):
+#                 text = shape.text
+#                 c.drawString(100, 700, text)
+    
+#     c.save()
+
+# (Win)Convert PowerPoint file to PDF, need know the path
 def ppt_to_pdf(ppt_file_path, pdf_file_path):
     # Ensure the file paths are absolute
     ppt_file_path = os.path.abspath(ppt_file_path)
@@ -123,7 +146,7 @@ def ppt_to_pdf(ppt_file_path, pdf_file_path):
     comtypes.CoInitialize()
     powerpoint = comtypes.client.CreateObject("PowerPoint.Application")
     powerpoint.Visible = 1
-
+    
     try:
         # Open the presentation
         presentation = powerpoint.Presentations.Open(ppt_file_path)
@@ -203,7 +226,7 @@ def main():
             st.session_state.MaxSlide = st.number_input("Max page num:", min_value=0, max_value=100, value=10, step=1)
         with col_line:
             st.session_state.MaxLine = st.number_input("MaxLine per page:", min_value=0, max_value=20, value=10, step=1)
-        uploaded_file = st.file_uploader("Choose a file",type=['md','docx','csv','txt'])
+        uploaded_file = st.file_uploader("Choose a file",type=['md','docx','csv','txt','pptx'])
         # New input area for user
         user_input = st.chat_input("If you have more requirements to state:")
         col_gen, col_exit = st.columns([1,1])
@@ -265,8 +288,8 @@ def main():
             #** debug
             # elif uploaded_file.type == 'application/pdf':
             #     pf = uploaded_file
-            # elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-            #     ppt = uploaded_file
+            elif uploaded_file.type == 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+                ppt = uploaded_file
             else:
                 st.write("File not supported")
         
@@ -294,19 +317,19 @@ def main():
             #** debug
             # if pf is not None:
             #     st.markdown(embed_pdf(pf), unsafe_allow_html=True)
-            # if ppt is not None:
-            #     # Save the uploaded file to a temporary location
-            #     with tempfile.NamedTemporaryFile(delete=False, suffix=".pptx") as tmp_ppt:
-            #         tmp_ppt.write(ppt.getbuffer())
-            #         tmp_ppt_path = tmp_ppt.name
-            #         tmp_pdf_path = tmp_ppt_path.replace(".pptx", ".pdf")
-            #     # Convert the PowerPoint file to pdf
-            #     ppt_to_pdf(tmp_ppt_path, tmp_pdf_path)
-            #     # Display the PDF file
-            #     st.markdown(empdf(tmp_pdf_path), unsafe_allow_html=True)
-            #     # Clean up the temporary PPTX file
-            #     os.remove(tmp_ppt_path)
-            #     os.remove(tmp_pdf_path) 
+            if ppt is not None:
+                # Save the uploaded file to a temporary location
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pptx") as tmp_ppt:
+                    tmp_ppt.write(ppt.getbuffer())
+                    tmp_ppt_path = tmp_ppt.name
+                    tmp_pdf_path = tmp_ppt_path.replace(".pptx", ".pdf")
+                # Convert the PowerPoint file to pdf
+                ppt_to_pdf(tmp_ppt_path, tmp_pdf_path)
+                # Display the PDF file
+                st.markdown(empdf(tmp_pdf_path), unsafe_allow_html=True)
+                # Clean up the temporary PPTX file
+                os.remove(tmp_ppt_path)
+                os.remove(tmp_pdf_path) 
             
 
     # if GenerateButton and topic:
