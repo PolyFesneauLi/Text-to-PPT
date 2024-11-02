@@ -11,3 +11,4 @@ comtypes
 pymupdf
 fitz
 python-office
+search4file
