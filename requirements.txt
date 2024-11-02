@@ -10,3 +10,4 @@ streamlit_modal
 comtypes
 pymupdf
 fitz
+python-office

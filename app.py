@@ -4,7 +4,8 @@ import pptx
 from pptx.util import Inches, Pt
 import os
 import toml,json, requests
-import comtypes.client
+
+
 
 import pandas as pd
 import docx2txt
@@ -12,9 +13,8 @@ import docx2txt
 # display pdf file
 import fitz
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from pptx import Presentation
+# ppt2pdf
+import office
 
 # popup modal
 from streamlit_modal import Modal
@@ -138,32 +138,33 @@ def get_ppt_download_url(path):
 # (Win)Convert PowerPoint file to PDF, need know the path
 # cannot transfer ppt containing images
 def ppt_to_pdf(ppt_file_path, pdf_file_path):
-    # Ensure the file paths are absolute
-    ppt_file_path = os.path.abspath(ppt_file_path)
-    pdf_file_path = os.path.abspath(pdf_file_path)
+    office.ppt.ppt2pdf(ppt_file_path)
+    # # Ensure the file paths are absolute
+    # ppt_file_path = os.path.abspath(ppt_file_path)
+    # pdf_file_path = os.path.abspath(pdf_file_path)
 
-    # Check if the PPT file exists
-    if not os.path.exists(ppt_file_path):
-        raise FileNotFoundError(f"The file {ppt_file_path} does not exist.")
+    # # Check if the PPT file exists
+    # if not os.path.exists(ppt_file_path):
+    #     raise FileNotFoundError(f"The file {ppt_file_path} does not exist.")
 
-    # Create PowerPoint application object
-    comtypes.CoInitialize()
-    powerpoint = comtypes.client.CreateObject("PowerPoint.Application")
-    powerpoint.Visible = 1
+    # # Create PowerPoint application object
+    # comtypes.CoInitialize()
+    # powerpoint = comtypes.client.CreateObject("PowerPoint.Application")
+    # powerpoint.Visible = 1
     
-    try:
-        # Open the presentation
-        presentation = powerpoint.Presentations.Open(ppt_file_path)
-        # Save as PDF
-        presentation.SaveAs(pdf_file_path, 32)  # 32 is the formatType for PDF
-        # Close the presentation
-        presentation.Close()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        # Quit PowerPoint
-        powerpoint.Quit()
-        comtypes.CoUninitialize()
+    # try:
+    #     # Open the presentation
+    #     presentation = powerpoint.Presentations.Open(ppt_file_path)
+    #     # Save as PDF
+    #     presentation.SaveAs(pdf_file_path, 32)  # 32 is the formatType for PDF
+    #     # Close the presentation
+    #     presentation.Close()
+    # except Exception as e:
+    #     print(f"An error occurred: {e}")
+    # finally:
+    #     # Quit PowerPoint
+    #     powerpoint.Quit()
+    #     comtypes.CoUninitialize()
 
 # use to display pdf file in web from path
 def empdf(pdf_file_path):
