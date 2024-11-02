@@ -10,3 +10,4 @@ streamlit_modal
 pymupdf
 fitz
 aspose.slides
+libgdiplus
