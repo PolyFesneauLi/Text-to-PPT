@@ -133,6 +133,7 @@ def get_ppt_download_url(path):
 #     c.save()
 
 # (Win)Convert PowerPoint file to PDF, need know the path
+# cannot transfer ppt containing images
 def ppt_to_pdf(ppt_file_path, pdf_file_path):
     # Ensure the file paths are absolute
     ppt_file_path = os.path.abspath(ppt_file_path)
@@ -163,10 +164,16 @@ def ppt_to_pdf(ppt_file_path, pdf_file_path):
 
 # use to display pdf file in web from path
 def empdf(pdf_file_path):
-    with open(pdf_file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" title="output_pdf"></iframe> '
-    return pdf_display
+    pdf_file_path = os.path.abspath(pdf_file_path)
+    try:
+        with open(pdf_file_path, "rb") as f:
+            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+            # st.markdown(f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" title="output_pdf"></iframe>', unsafe_allow_html=True)
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" title="output_pdf"></iframe>'
+        return pdf_display
+    except Exception as e:
+        st.error(f"Error reading PDF file: {e}")
+        return ""
 # use to display pdf file in web from file
 def embed_pdf(file):
     base64_pdf = base64.b64encode(file.read()).decode('utf-8')
@@ -194,7 +201,6 @@ def main():
     col1, col2 = st.columns([3,2])
     txt = wd = df = None
     pf = md = ppt = None
-
     # defoult values
     if "MinSlide" not in st.session_state:
         st.session_state.MinSlide = 3
@@ -210,7 +216,8 @@ def main():
         st.session_state.outputpath = None
     if "generatedpath" not in st.session_state:
         st.session_state.generatedpath = None
-
+    if "debug_path" not in st.session_state:
+        st.session_state.debug_path = None
     # popup window when generating presentation
     my_modal = Modal(title="Running Status", key="modal_key", max_width=600)
 
@@ -294,10 +301,22 @@ def main():
                 st.write("File not supported")
         
     with col1: # Left column
+        st.success("1")
+        st.session_state.debug_path = "./project_overview.pdf"
+        if not os.path.exists(st.session_state.debug_path):
+            st.error(f"File not found: {st.session_state.debug_path}")
+        # st.write(empdf(st.session_state.debug_path))
+        st.markdown(empdf(st.session_state.debug_path), unsafe_allow_html=True)
+
         if show_output_preview: # Display the output ppt preview
             if st.session_state.outputpath is not None:
                 st.markdown("## Output Preview")
                 ppt_to_pdf(st.session_state.outputpath, st.session_state.outputpath.replace(".pptx", ".pdf"))
+                
+                ##* debug
+                # st.write(empdf(st.session_state.outputpath.replace(".pptx", ".pdf")))
+                # st.markdown(st.session_state.outputpath.replace(".pptx", ".pdf"))
+                
                 st.markdown(empdf(st.session_state.outputpath.replace(".pptx", ".pdf")), unsafe_allow_html=True)
                 os.remove(st.session_state.outputpath.replace(".pptx", ".pdf"))
                 st.session_state.generatedpath = st.session_state.outputpath
