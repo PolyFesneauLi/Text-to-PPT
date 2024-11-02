@@ -168,7 +168,6 @@ def empdf(pdf_file_path):
     try:
         with open(pdf_file_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-            # st.markdown(f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" title="output_pdf"></iframe>', unsafe_allow_html=True)
         pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" title="output_pdf"></iframe>'
         return pdf_display
     except Exception as e:
@@ -301,11 +300,9 @@ def main():
                 st.write("File not supported")
         
     with col1: # Left column
-        st.success("1")
-        st.session_state.debug_path = "./project_overview.pdf"
+        st.session_state.debug_path = "./Cat.pdf"
         if not os.path.exists(st.session_state.debug_path):
             st.error(f"File not found: {st.session_state.debug_path}")
-        # st.write(empdf(st.session_state.debug_path))
         st.markdown(empdf(st.session_state.debug_path), unsafe_allow_html=True)
 
         if show_output_preview: # Display the output ppt preview
