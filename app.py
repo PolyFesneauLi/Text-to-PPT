@@ -9,6 +9,9 @@ import comtypes.client
 import pandas as pd
 import docx2txt
 
+# display pdf file
+import fitz
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from pptx import Presentation
@@ -179,6 +182,20 @@ def embed_pdf(file):
     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px"></iframe>'
     return pdf_display
 
+def display(path):
+    if not os.path.exists(path):
+        st.error(f"File not found: {path}")
+    else:
+        # 使用 PyMuPDF 读取 PDF 文件并显示其内容
+        doc = fitz.open(path)
+        pdf_display = ""
+        for page_num in range(len(doc)):
+            page = doc.load_page(page_num)
+            pix = page.get_pixmap()
+            img_data = pix.tobytes("png")
+            pdf_display += f'<img src="data:image/png;base64,{base64.b64encode(img_data).decode()}" width="100%">'
+        st.markdown(pdf_display, unsafe_allow_html=True)
+
 def main():
     # web page title
     st.set_page_config(page_title="PowerPoint Presentation Generator",layout="wide")
@@ -303,7 +320,8 @@ def main():
         st.session_state.debug_path = "./Cat.pdf"
         if not os.path.exists(st.session_state.debug_path):
             st.error(f"File not found: {st.session_state.debug_path}")
-        st.markdown(empdf(st.session_state.debug_path), unsafe_allow_html=True)
+        display(st.session_state.debug_path)
+        st.success("1")
 
         if show_output_preview: # Display the output ppt preview
             if st.session_state.outputpath is not None:
