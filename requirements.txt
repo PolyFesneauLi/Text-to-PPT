@@ -9,5 +9,4 @@ pdfkit
 streamlit_modal
 pymupdf
 fitz
-spire
-spire.presentation
+aspose.slides

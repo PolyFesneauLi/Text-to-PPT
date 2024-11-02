@@ -14,8 +14,9 @@ import docx2txt
 import fitz
 
 # ppt2pdf
-from spire.presentation import *
-from spire.presentation.common import *
+# from spire.presentation import *
+# from spire.presentation.common import *
+import aspose.slides as slides
 
 # popup modal
 from streamlit_modal import Modal
@@ -139,16 +140,19 @@ def get_ppt_download_url(path):
 # (Win)Convert PowerPoint file to PDF, need know the path
 # cannot transfer ppt containing images
 def ppt_to_pdf(ppt_file_path, pdf_file_path):
-    ppt_file_path = os.path.abspath(ppt_file_path)
-    pdf_file_path = os.path.abspath(pdf_file_path)
+    pres = slides.Presentation(ppt_file_path)
+    pres.save(pdf_file_path, slides.export.SaveFormat.PDF)
+    # ppt_file_path = os.path.abspath(ppt_file_path)
+    # pdf_file_path = os.path.abspath(pdf_file_path)
 
-    if not os.path.exists(ppt_file_path):
-        raise FileNotFoundError(f"PPT file not found: {ppt_file_path}")
+    # if not os.path.exists(ppt_file_path):
+    #     raise FileNotFoundError(f"PPT file not found: {ppt_file_path}")
     
-    pre = Presentation()
-    pre.LoadFromFile(ppt_file_path)
-    pre.SaveToFile(pdf_file_path, FileFormat.PDF)
-    pre.Dispose()
+    # pre = Presentation()
+    # pre.LoadFromFile(ppt_file_path)
+    # pre.SaveToFile(pdf_file_path, FileFormat.PDF)
+    # pre.Dispose()
+
     # # Ensure the file paths are absolute
     # ppt_file_path = os.path.abspath(ppt_file_path)
     # pdf_file_path = os.path.abspath(pdf_file_path)
@@ -330,6 +334,9 @@ def main():
     with col1: # Left column
         # ppt_to_pdf("./123.pptx", "./123.pdf")
         # display("./123.pdf")
+
+        ppt_to_pdf("./Dog.pptx", "./Dog.pdf")
+        display("./Dog.pdf")
         
         if show_output_preview: # Display the output ppt preview
             if st.session_state.outputpath is not None:
@@ -341,7 +348,7 @@ def main():
                 # st.markdown(st.session_state.outputpath.replace(".pptx", ".pdf"))
                 
                 display(st.session_state.outputpath.replace(".pptx", ".pdf"))
-                # os.remove(st.session_state.outputpath.replace(".pptx", ".pdf"))
+                os.remove(st.session_state.outputpath.replace(".pptx", ".pdf"))
                 st.session_state.generatedpath = st.session_state.outputpath
                 st.session_state.outputpath = None
 
